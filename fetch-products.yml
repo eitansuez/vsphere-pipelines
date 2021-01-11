@@ -33,10 +33,17 @@ resources:
     private_key: ((config-repo-key.private_key))
     uri: ((config-repo-uri))
 
+- name: daily
+  type: time
+  source:
+    interval: 24h
+
 jobs:
 - name: fetch-opsman
   plan:
   - in_parallel:
+    - get: daily
+      trigger: true
     - get: platform-automation-tasks
       params: { unpack: true }
     - get: platform-automation-image
