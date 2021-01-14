@@ -350,3 +350,35 @@ jobs:
     params:
       CONFIG_FILE: sandbox/pas.yml
       ENV_FILE: sandbox/env.yml
+
+- name: configure-ncp
+  plan:
+  - in_parallel:
+    - get: platform-automation-tasks
+      params: { unpack: true }
+    - get: platform-automation-image
+      params: { unpack: true }
+    - get: configuration
+  - task: interpolate-env-creds
+    image: platform-automation-image
+    file: platform-automation-tasks/tasks/credhub-interpolate.yml
+    params:
+      CREDHUB_CLIENT: ((credhub-client))
+      CREDHUB_SECRET: ((credhub-secret))
+      CREDHUB_SERVER: ((credhub-server))
+      CREDHUB_CA_CERT: ((credhub-ca-cert.certificate))
+      PREFIX: '/concourse/sandbox'
+      SKIP_MISSING: false
+    input_mapping:
+      files: configuration
+    output_mapping:
+      interpolated-files: interpolated-configuration
+  - task: configure-ncp
+    image: platform-automation-image
+    file: platform-automation-tasks/tasks/configure-product.yml
+    input_mapping:
+      config: interpolated-configuration
+      env: interpolated-configuration
+    params:
+      CONFIG_FILE: sandbox/ncp.yml
+      ENV_FILE: sandbox/env.yml
