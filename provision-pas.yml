@@ -184,6 +184,7 @@ jobs:
     - get: state
     - get: installation
       passed: [ export-installation ]
+      trigger: true
   - task: interpolate-env-creds
     image: platform-automation-image
     file: platform-automation-tasks/tasks/credhub-interpolate.yml
