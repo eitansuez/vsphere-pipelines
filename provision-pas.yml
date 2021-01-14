@@ -68,6 +68,8 @@ resources:
 
 jobs:
 - name: install-opsman
+  serial: true
+  serial_groups: [ install ]
   plan:
   - in_parallel:
     - get: platform-automation-tasks
@@ -140,6 +142,8 @@ jobs:
       ENV_FILE: sandbox/env.yml
 
 - name: export-installation
+  serial: true
+  serial_groups: [ install ]
   plan:
   - in_parallel:
     - get: platform-automation-tasks
@@ -174,6 +178,8 @@ jobs:
     params: { file: installation/installation-*.zip }
 
 - name: upgrade-opsman
+  serial: true
+  serial_groups: [ install ]
   plan:
   - in_parallel:
     - get: platform-automation-tasks
@@ -252,12 +258,15 @@ jobs:
     params: { file: installation/installation-*.zip }
 
 - name: upload-and-stage-pas
+  serial: true
+  serial_groups: [ install ]
   plan:
   - in_parallel:
     - get: platform-automation-tasks
       params: { unpack: true }
     - get: platform-automation-image
       params: { unpack: true }
+      passed: [ upgrade-opsman ]
     - get: configuration
     - get: pas-product
       trigger: true
@@ -303,12 +312,15 @@ jobs:
       ENV_FILE: sandbox/env.yml
 
 - name: upload-and-stage-ncp
+  serial: true
+  serial_groups: [ install ]
   plan:
   - in_parallel:
     - get: platform-automation-tasks
       params: { unpack: true }
     - get: platform-automation-image
       params: { unpack: true }
+      passed: [ upgrade-opsman ]
     - get: configuration
     - get: ncp-product
       trigger: true
@@ -346,6 +358,8 @@ jobs:
       ENV_FILE: sandbox/env.yml
 
 - name: configure-pas
+  serial: true
+  serial_groups: [ install ]
   plan:
   - in_parallel:
     - get: platform-automation-tasks
@@ -381,6 +395,8 @@ jobs:
       ENV_FILE: sandbox/env.yml
 
 - name: configure-ncp
+  serial: true
+  serial_groups: [ install ]
   plan:
   - in_parallel:
     - get: platform-automation-tasks
@@ -416,6 +432,8 @@ jobs:
       ENV_FILE: sandbox/env.yml
 
 - name: apply-changes
+  serial: true
+  serial_groups: [ install ]
   plan:
   - in_parallel:
     - get: platform-automation-tasks
