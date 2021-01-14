@@ -382,3 +382,33 @@ jobs:
     params:
       CONFIG_FILE: sandbox/ncp.yml
       ENV_FILE: sandbox/env.yml
+
+- name: apply-changes
+  plan:
+  - in_parallel:
+    - get: platform-automation-tasks
+      params: { unpack: true }
+    - get: platform-automation-image
+      params: { unpack: true }
+    - get: configuration
+  - task: interpolate-env-creds
+    image: platform-automation-image
+    file: platform-automation-tasks/tasks/credhub-interpolate.yml
+    params:
+      CREDHUB_CLIENT: ((credhub-client))
+      CREDHUB_SECRET: ((credhub-secret))
+      CREDHUB_SERVER: ((credhub-server))
+      CREDHUB_CA_CERT: ((credhub-ca-cert.certificate))
+      PREFIX: '/concourse/sandbox'
+      SKIP_MISSING: false
+    input_mapping:
+      files: configuration
+    output_mapping:
+      interpolated-files: interpolated-configuration
+  - task: apply-changes
+    image: platform-automation-image
+    file: platform-automation-tasks/tasks/apply-changes.yml
+    input_mapping:
+      env: interpolated-configuration
+    params:
+      ENV_FILE: sandbox/env.yml
