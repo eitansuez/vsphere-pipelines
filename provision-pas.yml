@@ -182,6 +182,7 @@ jobs:
       params: { unpack: true }
     - get: configuration
     - get: state
+      passed: [ install-opsman ]
     - get: installation
       passed: [ export-installation ]
       trigger: true
